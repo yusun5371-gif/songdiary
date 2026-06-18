@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>몽환의 노래 다이어리 🌟 Ethereal Song Diary</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Jua&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            jua: ['Jua', 'sans-serif'],
+            pretendard: ['Pretendard', 'sans-serif'],
+          },
+          colors: {
+            kitschPink: {
+              200: '#FFD6E0',
+              300: '#FFB3C6',
+              400: '#FFA0B4',
+              500: '#FF85A2',
+            },
+            kitschMint: {
+              200: '#C7F5EC',
+              300: '#A1E3D4',
+              400: '#7BE4C5',
+            },
+            ethereal: {
+              dark: '#4A4A68',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* 오로라 배경 애니메이션 */
+    @keyframes aurora {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    body {
+      background-color: #FFD1DC;
+      font-family: 'Pretendard', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* 유리 질감 (Glassmorphism) 및 진주 테두리 */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 8px 32px 0 rgba(255, 182, 193, 0.35), inset 0 0 15px rgba(255,255,255,0.5);
+      border-radius: 2rem;
+    }
+    
+    .glass-input {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    .glass-input:focus {
+      background: rgba(255, 255, 255, 0.8);
+      outline: none;
+      border-color: #FFB3C6;
+      box-shadow: 0 0 10px rgba(255, 179, 198, 0.4);
+    }
+
+    .glass-button {
+      background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.4));
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+    .glass-button:hover {
+      background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 182, 193, 0.4);
+    }
+
+    /* 반짝이 글리터 파티클 */
+    @keyframes glitter {
+      0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.5) rotate(45deg); box-shadow: 0 0 8px #fff; }
+    }
+    .glitter-particle {
+      position: fixed;
+      background-color: white;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 툴팁 애니메이션 */
+    .tooltip-trigger:hover .tooltip-content {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    /* 스크롤바 커스텀 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 179, 198, 0.6);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-ethereal-dark p-4 md:p-8 flex flex-col items-center justify-start relative">
+
+  <!-- 글리터 배경 컨테이너 -->
+  <div id="glitter-container" class="fixed inset-0 pointer-events-none z-0"></div>
+
+  <!-- 커스텀 알림 토스트 -->
+  <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[100] glass-card px-6 py-3 flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px] rounded-full">
+    <span class="text-2xl text-kitschPink-400">✨</span>
+    <span id="toast-message" class="font-jua text-sm text-ethereal-dark">알림 메시지</span>
+  </div>
+
+  <!-- ==================== 1. 웰컴 오버레이 (초기 진입 시) ==================== -->
+  <div id="welcome-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 hidden">
+    <!-- 배경 블러 덮개 -->
+    <div class="absolute inset-0 bg-white/20 backdrop-blur-md"></div>
+    <div class="glass-card w-full max-w-sm p-8 relative flex flex-col items-center text-center z-10 animate-[bounce_1s_ease-in-out]">
+      <div class="text-5xl mb-4 animate-pulse">🌸</div>
+      <h2 class="font-jua text-2xl text-ethereal-dark mb-2">나만의 비밀 다이어리</h2>
+      <p class="font-pretendard text-xs text-gray-500 mb-6 leading-relaxed">
+        이름과 4자리 비밀번호(PIN)를 입력하세요.<br>
+        처음 오셨다면 새로운 다이어리가 생성됩니다.
+      </p>
+      
+      <div class="w-full flex flex-col gap-3">
+        <input type="text" id="welcome-name" placeholder="다이어리 이름 (예: sunny)" class="w-full glass-input rounded-xl px-4 py-3 text-sm font-jua text-center placeholder-gray-400" maxlength="20">
+        <input type="password" id="welcome-pin" placeholder="비밀번호 4자리 (PIN)" class="w-full glass-input rounded-xl px-4 py-3 text-sm font-jua text-center placeholder-gray-400 tracking-[0.5em]" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+        <button onclick="handleWelcomeSubmit()" class="w-full glass-button text-kitschPink-500 font-jua py-3 rounded-xl mt-2 text-lg">
+          입장하기 ✨
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. 언락 오버레이 (URL 파라미터로 바로 진입 시) ==================== -->
+  <div id="unlock-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 hidden">
+    <div class="absolute inset-0 bg-white/20 backdrop-blur-md"></div>
+    <div class="glass-card w-full max-w-sm p-8 relative flex flex-col items-center text-center z-10">
+      <div class="text-4xl mb-4 text-kitschMint-300 drop-shadow-md">🗝️</div>
+      <h2 class="font-jua text-xl text-ethereal-dark mb-2">
+        <span id="unlock-username-display" class="text-kitschPink-400"></span>의 다이어리
+      </h2>
+      <p class="font-pretendard text-xs text-gray-500 mb-6">다이어리를 열려면 비밀번호를 입력해주세요.</p>
+      
+      <div class="w-full flex flex-col gap-3">
+        <input type="password" id="unlock-pin" placeholder="비밀번호 4자리" class="w-full glass-input rounded-xl px-4 py-3 text-sm font-jua text-center tracking-[0.5em]" maxlength="4" inputmode="numeric">
+        <button onclick="handleUnlockSubmit()" class="w-full glass-button text-kitschMint-400 font-jua py-3 rounded-xl mt-2 text-lg">
+          다이어리 열기 🌟
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 메인 앱 레이아웃 ==================== -->
+  <div id="main-app" class="max-w-4xl w-full flex flex-col gap-6 relative mt-4 z-10 hidden">
+    
+    <!-- 다이어리 커버 헤더 -->
+    <header class="glass-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 relative">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center text-3xl glass-button text-kitschPink-400">
+          🎵
+        </div>
+        <div>
+          <h1 class="font-jua text-2xl md:text-3xl text-ethereal-dark tracking-wide flex items-center gap-2 group cursor-pointer" onclick="editAppTitle()" title="제목 수정하기">
+            <span id="app-title-text">나만의 영롱한 다이어리</span>
+            <i class="fa-solid fa-pen text-sm text-white drop-shadow group-hover:text-kitschPink-400 transition-colors opacity-0 group-hover:opacity-100 ml-1"></i>
+          </h1>
+        </div>
+      </div>
+
+      <!-- 백업 및 복구 버튼 -->
+      <div class="flex items-center gap-2 self-end md:self-center">
+        <button onclick="exportData()" class="glass-button text-ethereal-dark font-jua text-xs px-4 py-2.5 rounded-full flex items-center gap-1.5">
+          <i class="fa-solid fa-cloud-arrow-down text-kitschPink-400"></i> 저장
+        </button>
+        <label for="import-file" class="glass-button text-ethereal-dark font-jua text-xs px-4 py-2.5 rounded-full flex items-center gap-1.5 cursor-pointer">
+          <i class="fa-solid fa-cloud-arrow-up text-kitschMint-400"></i> 복원
+        </label>
+        <input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
+      </div>
+    </header>
+
+    <!-- 달력 컨트롤러 (연월 탐색) -->
+    <div class="glass-card p-4 flex items-center justify-between">
+      <button onclick="changeMonth(-1)" class="w-10 h-10 glass-button text-kitschPink-400 rounded-full flex items-center justify-center text-lg">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      
+      <div class="flex items-center gap-3">
+        <span id="calendar-year-month" class="font-jua text-xl md:text-2xl text-ethereal-dark tracking-widest drop-shadow-sm">2026.06</span>
+        <button onclick="goToToday()" class="glass-button text-xs text-kitschMint-400 font-jua px-3 py-1.5 rounded-full">
+          오늘 ✨
+        </button>
+      </div>
+
+      <button onclick="changeMonth(1)" class="w-10 h-10 glass-button text-kitschPink-400 rounded-full flex items-center justify-center text-lg">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- 메인 달력 그리드 -->
+    <main class="glass-card p-4 md:p-6 flex flex-col gap-4">
+      <!-- 요일 헤더 -->
+      <div class="grid grid-cols-7 gap-2 text-center border-b pb-3 border-white/40">
+        <div class="font-jua text-sm text-kitschPink-500 drop-shadow-sm">일</div>
+        <div class="font-jua text-sm text-ethereal-dark drop-shadow-sm">월</div>
+        <div class="font-jua text-sm text-ethereal-dark drop-shadow-sm">화</div>
+        <div class="font-jua text-sm text-ethereal-dark drop-shadow-sm">수</div>
+        <div class="font-jua text-sm text-ethereal-dark drop-shadow-sm">목</div>
+        <div class="font-jua text-sm text-ethereal-dark drop-shadow-sm">금</div>
+        <div class="font-jua text-sm text-kitschMint-400 drop-shadow-sm">토</div>
+      </div>
+
+      <!-- 날짜 그리드 -->
+      <div id="calendar-grid" class="grid grid-cols-7 gap-2 md:gap-3 min-h-[400px]">
+        <!-- JS 동적 생성 -->
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== 상세 및 입력 모달 오버레이 ==================== -->
+  <div id="modal-backdrop" class="fixed inset-0 bg-white/10 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4 transition-all duration-300 opacity-0">
+    <div id="modal-container" class="glass-card bg-white/70 w-full max-w-lg p-6 relative transform scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto">
+      
+      <!-- 닫기 버튼 -->
+      <button onclick="closeModalDirect()" class="absolute top-4 right-4 w-9 h-9 glass-button text-kitschPink-500 rounded-full flex items-center justify-center hover:rotate-90 z-10 text-xl font-bold pb-1">
+        &times;
+      </button>
+
+      <!-- 모달 타이틀 -->
+      <div class="mb-5 flex flex-col items-center">
+        <span id="modal-date-badge" class="inline-block glass-button text-kitschMint-400 font-jua text-xs px-4 py-1.5 rounded-full mb-3 shadow-none">
+          2026-06-18
+        </span>
+        <h2 id="modal-title" class="font-jua text-xl text-ethereal-dark">오늘의 노래</h2>
+      </div>
+
+      <!-- 1. 상세 조회 모드 -->
+      <div id="modal-view-mode" class="hidden flex flex-col items-center gap-5">
+        <!-- 대형 앨범 표지 -->
+        <div class="w-48 h-48 rounded-3xl glass-card p-1 flex items-center justify-center overflow-hidden relative group">
+          <div id="view-cover-wrapper" class="w-full h-full rounded-[1.3rem] overflow-hidden flex items-center justify-center bg-white/50 relative">
+            <img id="view-cover" src="" alt="Album Art" class="w-full h-full object-cover hidden">
+            <!-- 대체 플레이스홀더 (이미지 없을 시) -->
+            <div id="view-cover-placeholder" class="w-1/3 h-1/3 hidden items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="#A1E3D4" class="w-full h-full drop-shadow-md">
+                <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168-5.934-5.787 8.2-1.192z"/>
+              </svg>
+            </div>
+            
+            <div class="absolute inset-0 bg-white/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
+              <span class="text-white text-4xl drop-shadow-lg">✨</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center w-full">
+          <h3 id="view-title" class="font-jua text-2xl text-ethereal-dark break-words px-4 drop-shadow-sm">곡 제목</h3>
+          <p id="view-artist" class="font-jua text-base text-kitschPink-500 mt-1 break-words px-4">아티스트</p>
+        </div>
+
+        <!-- 감상 메모 박스 -->
+        <div class="w-full glass-input rounded-2xl p-5 min-h-[120px] relative">
+          <p id="view-memo" class="font-pretendard text-sm text-ethereal-dark leading-relaxed whitespace-pre-wrap">메모 내용</p>
+        </div>
+
+        <div class="flex items-center gap-3 w-full mt-2">
+          <button onclick="switchToEditMode()" class="flex-1 glass-button text-kitschMint-400 font-jua py-3 rounded-2xl">
+            <i class="fa-solid fa-pen-sparkle"></i> 수정
+          </button>
+          <button onclick="confirmDelete()" class="flex-1 glass-button text-kitschPink-400 font-jua py-3 rounded-2xl">
+            <i class="fa-solid fa-trash-can"></i> 삭제
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. 입력 및 수정 모드 -->
+      <div id="modal-form-mode" class="hidden flex flex-col gap-4">
+        
+        <!-- 탭 -->
+        <div class="flex glass-input p-1 rounded-2xl">
+          <button type="button" onclick="setEntryMethod('search')" id="tab-btn-search" class="flex-1 py-2.5 rounded-xl text-sm font-jua transition-all bg-white/80 text-ethereal-dark shadow-sm">
+            🔍 검색
+          </button>
+          <button type="button" onclick="setEntryMethod('direct')" id="tab-btn-direct" class="flex-1 py-2.5 rounded-xl text-sm font-jua text-gray-500 transition-all hover:text-ethereal-dark">
+            ✨ 직접입력
+          </button>
+        </div>
+
+        <!-- 곡 검색 폼 -->
+        <div id="entry-search-wrapper" class="flex flex-col gap-3">
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <input type="text" id="search-input" placeholder="곡 제목 또는 아티스트" class="w-full glass-input rounded-xl px-4 py-3 text-sm font-pretendard">
+            </div>
+            <button onclick="searchMusic()" class="glass-button text-kitschMint-400 font-jua px-5 rounded-xl flex items-center justify-center gap-1.5">
+              찾기
+            </button>
+          </div>
+
+          <!-- 로딩 -->
+          <div id="search-loading" class="hidden flex flex-col items-center justify-center py-6 gap-3">
+            <div class="flex gap-3 text-2xl">
+              <span class="animate-bounce text-kitschMint-300" style="animation-delay: 0s">✨</span>
+              <span class="animate-bounce text-kitschPink-300" style="animation-delay: 0.2s">✨</span>
+              <span class="animate-bounce text-white drop-shadow-md" style="animation-delay: 0.4s">✨</span>
+            </div>
+            <p class="font-jua text-sm text-kitschPink-400">별빛 속에서 음악을 찾는 중...</p>
+          </div>
+
+          <!-- 결과 리스트 -->
+          <div id="search-results" class="hidden flex flex-col gap-2 max-h-[200px] overflow-y-auto glass-input p-2 rounded-xl">
+          </div>
+
+          <!-- 결과 없음 -->
+          <div id="search-empty" class="hidden flex flex-col items-center justify-center py-6 text-center glass-input rounded-xl border-dashed">
+            <p class="font-jua text-sm text-ethereal-dark">찾으시는 노래가 없나요? 🥺</p>
+            <button onclick="switchToDirectInput()" class="mt-2 text-xs font-jua text-kitschPink-400 hover:text-kitschPink-500 underline flex items-center gap-1">
+              직접 입력하기 <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+
+          <!-- 선택된 곡 미리보기 -->
+          <div id="selected-song-preview" class="hidden flex items-center gap-3 glass-button rounded-xl p-3">
+            <img id="preview-art" src="" alt="Album Art" class="w-12 h-12 rounded-lg object-cover border border-white">
+            <div class="flex-1 min-w-0">
+              <p class="font-jua text-sm text-ethereal-dark truncate" id="preview-title">곡 제목</p>
+              <p class="font-pretendard text-xs text-gray-500 truncate" id="preview-artist">아티스트</p>
+            </div>
+            <span class="text-kitschMint-400 text-lg mr-1">🌟</span>
+          </div>
+        </div>
+
+        <!-- 직접 입력 폼 -->
+        <div id="entry-direct-wrapper" class="hidden flex flex-col gap-3">
+          <div class="flex flex-col sm:flex-row items-center gap-4 glass-input rounded-xl p-3">
+            <div class="w-20 h-20 bg-white/50 border border-white/80 rounded-xl flex items-center justify-center relative overflow-hidden flex-shrink-0">
+              <img id="direct-preview-img" src="" alt="Preview" class="w-full h-full object-cover hidden">
+              <!-- 빈 이미지 대체 플레이스홀더 -->
+              <div id="direct-preview-placeholder" class="w-1/3 h-1/3 flex items-center justify-center">
+                 <svg viewBox="0 0 24 24" fill="#FFB3C6" class="w-full h-full drop-shadow-sm">
+                   <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168-5.934-5.787 8.2-1.192z"/>
+                 </svg>
+              </div>
+            </div>
+            <div class="flex-1 w-full">
+              <label class="block font-jua text-xs text-ethereal-dark mb-1">앨범 표지 (선택)</label>
+              <input type="file" id="direct-image-file" accept="image/*" onchange="handleImageUpload(event)" class="text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-jua file:bg-white/80 file:text-kitschPink-500 hover:file:bg-white cursor-pointer w-full">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <input type="text" id="direct-title-input" placeholder="곡 제목 입력" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm font-pretendard">
+            </div>
+            <div>
+              <input type="text" id="direct-artist-input" placeholder="가수명 입력" class="w-full glass-input rounded-xl px-3 py-2.5 text-sm font-pretendard">
+            </div>
+          </div>
+        </div>
+
+        <!-- 감상 메모 칸 -->
+        <div class="flex flex-col gap-1 mt-2">
+          <textarea id="entry-memo-input" rows="4" maxlength="500" placeholder="당신의 기억을 남겨보세요" class="w-full glass-input rounded-2xl p-4 text-sm font-pretendard resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center gap-3 mt-3">
+          <button onclick="saveEntry()" class="flex-1 glass-button text-kitschMint-400 font-jua py-3.5 rounded-2xl text-lg">
+            기록 남기기 ✨
+          </button>
+          <button onclick="cancelForm()" class="glass-button text-gray-500 font-jua px-6 py-3.5 rounded-2xl">
+            취소
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 커스텀 삭제 팝업 -->
+  <div id="delete-confirm-backdrop" class="fixed inset-0 bg-white/10 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-all duration-300 opacity-0">
+    <div class="glass-card w-full max-w-sm p-6 relative transform scale-95 transition-all duration-300">
+      <div class="text-center flex flex-col items-center gap-3">
+        <span class="text-4xl">🫧</span>
+        <h3 class="font-jua text-lg text-ethereal-dark">기억을 지우시겠어요?</h3>
+        <p class="font-pretendard text-xs text-gray-500">한 번 사라진 기억은 되돌릴 수 없습니다.</p>
+        
+        <div class="flex items-center gap-3 w-full mt-4">
+          <button onclick="deleteEntry()" class="flex-1 glass-button text-kitschPink-400 font-jua py-2.5 rounded-xl">
+            지우기
+          </button>
+          <button onclick="closeDeleteConfirm()" class="flex-1 glass-button text-gray-500 font-jua py-2.5 rounded-xl">
+            머무르기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JS 스크립트 ==================== -->
+  <script>
+    // --- 글리터 이펙트 생성 ---
+    function createGlitter() {
+      const container = document.getElementById('glitter-container');
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'glitter-particle';
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.top = Math.random() * 100 + 'vh';
+        particle.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+        particle.style.animationDelay = Math.random() * 2 + 's';
+        
+        // 무작위 파스텔 컬러 글리터
+        const colors = ['#fff', '#FFD6E0', '#C7F5EC', '#E0C3FC'];
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        const size = Math.random() * 4 + 2;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        container.appendChild(particle);
+      }
+    }
+
+    // --- 글로벌 상태 ---
+    const REGISTRY_KEY = 'todays_song_diary_users';
+    let currentUser = null;
+    let dataKey = '';
+    let titleKey = '';
+    let songDiaryData = {};
+    
+    let currentYear = 2026;
+    let currentMonth = 5;
+    let selectedDateString = '';
+    let modalMode = 'view';
+    let entryMethod = 'search'; 
+    let tempSelectedSong = null;
+    let tempDirectCoverBase64 = '';
+
+    // --- 앱 초기화 & 라우팅 ---
+    document.addEventListener('DOMContentLoaded', () => {
+      createGlitter();
+      
+      const params = new URLSearchParams(window.location.search);
+      currentUser = params.get('user');
+
+      const usersStr = localStorage.getItem(REGISTRY_KEY) || '{}';
+      const users = JSON.parse(usersStr);
+
+      if (!currentUser) {
+        // 웰컴 창 표시
+        document.getElementById('welcome-overlay').classList.remove('hidden');
+      } else {
+        // 유저 파라미터가 있는 경우
+        if (!users[currentUser]) {
+          // 존재하지 않는 유저라면 홈으로 리다이렉트 (GitHub Pages 하위 경로 호환)
+          const url = new URL(window.location.href);
+          url.searchParams.delete('user');
+          window.location.href = url.toString();
+          return;
+        }
+        
+        // 세션 인증 확인
+        if (sessionStorage.getItem('auth_' + currentUser) === 'true') {
+          // 인증 완료 -> 앱 시작
+          initializeApp();
+        } else {
+          // PIN 해제 모달 띄우기
+          document.getElementById('unlock-overlay').classList.remove('hidden');
+          document.getElementById('unlock-username-display').innerText = currentUser;
+        }
+      }
+    });
+
+    function handleWelcomeSubmit() {
+      const name = document.getElementById('welcome-name').value.trim();
+      const pin = document.getElementById('welcome-pin').value.trim();
+      
+      if (!name || !pin || pin.length !== 4) {
+        showToast("⚠️ 이름과 4자리 PIN 번호를 입력해주세요."); 
+        return;
+      }
+      
+      const users = JSON.parse(localStorage.getItem(REGISTRY_KEY) || '{}');
+      if (users[name]) {
+        if (users[name] === pin) {
+          sessionStorage.setItem('auth_' + name, 'true');
+          const url = new URL(window.location.href);
+          url.searchParams.set('user', name);
+          window.location.href = url.toString();
+        } else {
+          showToast("❌ 이미 존재하는 이름이며 비밀번호가 다릅니다.");
+        }
+      } else {
+        // 새 유저 생성
+        users[name] = pin;
+        localStorage.setItem(REGISTRY_KEY, JSON.stringify(users));
+        sessionStorage.setItem('auth_' + name, 'true');
+        const url = new URL(window.location.href);
+        url.searchParams.set('user', name);
+        window.location.href = url.toString();
+      }
+    }
+
+    function handleUnlockSubmit() {
+      const pin = document.getElementById('unlock-pin').value.trim();
+      const users = JSON.parse(localStorage.getItem(REGISTRY_KEY) || '{}');
+      
+      if (users[currentUser] === pin) {
+        sessionStorage.setItem('auth_' + currentUser, 'true');
+        document.getElementById('unlock-overlay').classList.add('hidden');
+        initializeApp();
+      } else {
+        showToast("❌ 비밀번호가 틀렸습니다!");
+      }
+    }
+
+    function initializeApp() {
+      document.getElementById('main-app').classList.remove('hidden');
+      dataKey = `songs_${currentUser}`;
+      titleKey = `title_${currentUser}`;
+      
+      loadAppTitle();
+      loadDiaryData();
+      
+      const today = new Date();
+      currentYear = today.getFullYear();
+      currentMonth = today.getMonth();
+      
+      renderCalendar();
+    }
+
+    // --- 제목 변경 ---
+    function loadAppTitle() {
+      const savedTitle = localStorage.getItem(titleKey);
+      if (savedTitle) {
+        document.getElementById('app-title-text').innerText = savedTitle;
+      }
+    }
+
+    function editAppTitle() {
+      const currentTitle = document.getElementById('app-title-text').innerText;
+      const newTitle = prompt("나만의 다이어리 이름을 지어주세요 (최대 20자)", currentTitle);
+      if (newTitle !== null) {
+        const trimmed = newTitle.trim();
+        if (trimmed.length > 20) {
+          showToast("⚠️ 다이어리 이름은 최대 20자까지만 가능해요!");
+          return;
+        }
+        const finalTitle = trimmed || "나만의 영롱한 다이어리";
+        document.getElementById('app-title-text').innerText = finalTitle;
+        localStorage.setItem(titleKey, finalTitle);
+        showToast("🌸 다이어리 이름이 변경되었습니다!");
+      }
+    }
+
+    // --- 데이터 로드/저장 ---
+    function loadDiaryData() {
+      try {
+        const raw = localStorage.getItem(dataKey);
+        songDiaryData = raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        songDiaryData = {};
+      }
+    }
+
+    function saveDiaryData() {
+      localStorage.setItem(dataKey, JSON.stringify(songDiaryData));
+    }
+
+    // --- 달력 렌더링 ---
+    function renderCalendar() {
+      const grid = document.getElementById('calendar-grid');
+      const yearMonthLabel = document.getElementById('calendar-year-month');
+      grid.innerHTML = '';
+      yearMonthLabel.innerText = `${currentYear}.${String(currentMonth + 1).padStart(2, '0')}`;
+      
+      const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+      const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const prevLastDate = new Date(currentYear, currentMonth, 0).getDate();
+      let dateCells = [];
+      
+      for (let i = firstDayIndex - 1; i >= 0; i--) {
+        const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+        dateCells.push({ date: prevLastDate - i, currentMonth: false, dateStr: `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(prevLastDate - i).padStart(2, '0')}`});
+      }
+      for (let i = 1; i <= lastDate; i++) {
+        dateCells.push({ date: i, currentMonth: true, dateStr: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`});
+      }
+      const totalCells = Math.ceil(dateCells.length / 7) * 7;
+      for (let i = 1; i <= totalCells - dateCells.length + (dateCells.length%7===0?0:7-dateCells.length%7); i++) {
+        const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+        const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+        dateCells.push({ date: i, currentMonth: false, dateStr: `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`});
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      dateCells.forEach(cell => {
+        const cellEl = document.createElement('div');
+        const hasSong = songDiaryData[cell.dateStr];
+        
+        let dayColorClass = 'text-ethereal-dark';
+        const dayOfWeek = new Date(cell.dateStr).getDay();
+        if (dayOfWeek === 0) dayColorClass = 'text-kitschPink-500';
+        if (dayOfWeek === 6) dayColorClass = 'text-kitschMint-400';
+
+        cellEl.className = `min-h-[75px] md:min-h-[95px] glass-card border p-1.5 flex flex-col justify-between transition-all duration-300 relative group cursor-pointer tooltip-trigger select-none shadow-sm `;
+        
+        if (cell.currentMonth) {
+          cellEl.classList.add('border-white/80', 'hover:border-kitschPink-300', 'hover:-translate-y-1', 'hover:shadow-[0_10px_20px_rgba(255,255,255,0.8)]');
+          if (cell.dateStr === todayStr) {
+            cellEl.classList.add('bg-white/60');
+          }
+        } else {
+          cellEl.classList.add('opacity-30', 'pointer-events-none');
+        }
+
+        const topBarEl = document.createElement('div');
+        topBarEl.className = `flex justify-between items-center w-full`;
+        
+        const dateNumEl = document.createElement('span');
+        dateNumEl.className = `font-fredoka text-[11px] md:text-xs font-bold ${dayColorClass} drop-shadow-sm`;
+        dateNumEl.innerText = cell.date;
+        topBarEl.appendChild(dateNumEl);
+
+        cellEl.appendChild(topBarEl);
+
+        if (hasSong && cell.currentMonth) {
+          const song = songDiaryData[cell.dateStr];
+          
+          const thumbWrapper = document.createElement('div');
+          thumbWrapper.className = 'w-full flex-1 flex flex-col items-center justify-center gap-1 mt-1';
+          
+          // 앨범 아트 렌더링 컨테이너
+          const imgContainer = document.createElement('div');
+          imgContainer.className = 'w-8 h-8 md:w-10 md:h-10 rounded-lg border border-white/80 shadow-sm transition-transform group-hover:scale-105 overflow-hidden flex items-center justify-center bg-white/50';
+          
+          if (song.coverUrl) {
+             const imgEl = document.createElement('img');
+             imgEl.src = song.coverUrl;
+             imgEl.className = 'w-full h-full object-cover';
+             imgContainer.appendChild(imgEl);
+          } else {
+             // 이미지가 없을 때의 민트색 별 플레이스홀더 (1/9 크기 = 부모의 33%)
+             imgContainer.innerHTML = `
+               <div class="w-1/3 h-1/3 flex items-center justify-center">
+                 <svg viewBox="0 0 24 24" fill="#A1E3D4" class="w-full h-full drop-shadow-md">
+                   <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.4 8.168L12 18.896l-7.334 3.857 1.4-8.168-5.934-5.787 8.2-1.192z"/>
+                 </svg>
+               </div>
+             `;
+          }
+          thumbWrapper.appendChild(imgContainer);
+
+          const textWrapper = document.createElement('div');
+          textWrapper.className = 'w-full text-center min-w-0 mt-0.5';
+          textWrapper.innerHTML = `
+            <p class="font-jua text-[9px] md:text-[10px] text-ethereal-dark truncate w-full px-0.5 drop-shadow-sm">${song.title}</p>
+            <p class="font-pretendard text-[8px] text-gray-500 truncate w-full px-0.5">${song.artist}</p>
+          `;
+          thumbWrapper.appendChild(textWrapper);
+          cellEl.appendChild(thumbWrapper);
+
+          // 툴팁
+          const tooltipEl = document.createElement('div');
+          tooltipEl.className = 'tooltip-content absolute bottom-[105%] left-1/2 transform -translate-x-1/2 glass-card border border-white/90 text-ethereal-dark text-xs p-3 w-48 opacity-0 invisible translate-y-2 transition-all duration-200 z-30 pointer-events-none flex flex-col gap-1.5 shadow-xl';
+          tooltipEl.innerHTML = `
+            <div class="font-jua text-sm truncate">🎵 ${song.title}</div>
+            <div class="font-pretendard text-[10px] text-gray-500 truncate">🎙️ ${song.artist}</div>
+            ${song.memo ? `<div class="font-pretendard text-[10px] text-ethereal-dark line-clamp-2 mt-1 border-t border-white/40 pt-1">✍️ ${song.memo}</div>` : ''}
+          `;
+          cellEl.appendChild(tooltipEl);
+        }
+
+        if (cell.currentMonth) cellEl.addEventListener('click', () => handleDayClick(cell.dateStr));
+        grid.appendChild(cellEl);
+      });
+    }
+
+    function changeMonth(dir) {
+      currentMonth += dir;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      renderCalendar();
+    }
+    function goToToday() {
+      const t = new Date(); currentYear = t.getFullYear(); currentMonth = t.getMonth(); renderCalendar();
+    }
+
+    // --- 모달 로직 ---
+    function handleDayClick(dateStr) {
+      selectedDateString = dateStr;
+      document.getElementById('modal-date-badge').innerText = dateStr;
+      if (songDiaryData[dateStr]) openModal('view');
+      else openModal('write');
+    }
+
+    function openModal(mode) {
+      modalMode = mode;
+      const bd = document.getElementById('modal-backdrop');
+      const mc = document.getElementById('modal-container');
+      bd.classList.remove('hidden');
+      setTimeout(() => { bd.classList.remove('opacity-0'); mc.classList.remove('scale-95'); }, 50);
+      updateModalUI();
+    }
+
+    function updateModalUI() {
+      const vEl = document.getElementById('modal-view-mode');
+      const fEl = document.getElementById('modal-form-mode');
+      resetFormInputs();
+
+      if (modalMode === 'view') {
+        document.getElementById('modal-title').innerText = "";
+        vEl.classList.remove('hidden'); fEl.classList.add('hidden');
+        
+        const song = songDiaryData[selectedDateString];
+        const coverEl = document.getElementById('view-cover');
+        const placeholderEl = document.getElementById('view-cover-placeholder');
+        
+        if (song.coverUrl) {
+          coverEl.src = song.coverUrl;
+          coverEl.classList.remove('hidden');
+          placeholderEl.classList.add('hidden');
+        } else {
+          coverEl.classList.add('hidden');
+          placeholderEl.classList.remove('hidden');
+          placeholderEl.classList.add('flex');
+        }
+        
+        document.getElementById('view-title').innerText = song.title;
+        document.getElementById('view-artist').innerText = song.artist;
+        document.getElementById('view-memo').innerText = song.memo || '';
+      } else {
+        document.getElementById('modal-title').innerText = modalMode==='write' ? "노래 수집하기✨" : "기록 다듬기 ✎";
+        vEl.classList.add('hidden'); fEl.classList.remove('hidden');
+        
+        if (modalMode === 'edit') {
+          const s = songDiaryData[selectedDateString];
+          document.getElementById('entry-memo-input').value = s.memo || '';
+          if (s.isDirect) {
+            setEntryMethod('direct');
+            document.getElementById('direct-title-input').value = s.title;
+            document.getElementById('direct-artist-input').value = s.artist;
+            if (s.coverUrl) {
+              document.getElementById('direct-preview-img').src = s.coverUrl;
+              document.getElementById('direct-preview-img').classList.remove('hidden');
+              document.getElementById('direct-preview-placeholder').classList.add('hidden');
+              tempDirectCoverBase64 = s.coverUrl;
+            }
+          } else {
+            setEntryMethod('search');
+            document.getElementById('search-input').value = `${s.title} ${s.artist}`;
+            tempSelectedSong = { trackName: s.title, artistName: s.artist, artworkUrl100: s.coverUrl };
+            showSelectedPreview(s.title, s.artist, s.coverUrl);
+          }
+        } else {
+          setEntryMethod('search');
+        }
+      }
+    }
+
+    function resetFormInputs() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('search-results').classList.add('hidden');
+      document.getElementById('search-results').innerHTML = '';
+      document.getElementById('search-empty').classList.add('hidden');
+      document.getElementById('search-loading').classList.add('hidden');
+      document.getElementById('selected-song-preview').classList.add('hidden');
+      tempSelectedSong = null;
+      
+      document.getElementById('direct-title-input').value = '';
+      document.getElementById('direct-artist-input').value = '';
+      document.getElementById('direct-image-file').value = '';
+      document.getElementById('direct-preview-img').src = '';
+      document.getElementById('direct-preview-img').classList.add('hidden');
+      document.getElementById('direct-preview-placeholder').classList.remove('hidden');
+      tempDirectCoverBase64 = '';
+      document.getElementById('entry-memo-input').value = '';
+    }
+
+    // 닫기 로직 (외부 배경 클릭 방지 적용 상태)
+    function closeModalDirect() {
+      const bd = document.getElementById('modal-backdrop');
+      const mc = document.getElementById('modal-container');
+      bd.classList.add('opacity-0'); mc.classList.add('scale-95');
+      setTimeout(() => bd.classList.add('hidden'), 300);
+    }
+
+    function setEntryMethod(m) {
+      entryMethod = m;
+      const sT = document.getElementById('tab-btn-search');
+      const dT = document.getElementById('tab-btn-direct');
+      if (m === 'search') {
+        sT.className = "flex-1 py-2.5 rounded-xl text-sm font-jua transition-all bg-white/80 text-ethereal-dark shadow-sm";
+        dT.className = "flex-1 py-2.5 rounded-xl text-sm font-jua text-gray-500 transition-all hover:text-ethereal-dark";
+        document.getElementById('entry-search-wrapper').classList.remove('hidden');
+        document.getElementById('entry-direct-wrapper').classList.add('hidden');
+      } else {
+        dT.className = "flex-1 py-2.5 rounded-xl text-sm font-jua transition-all bg-white/80 text-ethereal-dark shadow-sm";
+        sT.className = "flex-1 py-2.5 rounded-xl text-sm font-jua text-gray-500 transition-all hover:text-ethereal-dark";
+        document.getElementById('entry-search-wrapper').classList.add('hidden');
+        document.getElementById('entry-direct-wrapper').classList.remove('hidden');
+      }
+    }
+
+    function switchToDirectInput() { setEntryMethod('direct'); }
+    function switchToEditMode() { openModal('edit'); }
+    function cancelForm() {
+      if (songDiaryData[selectedDateString]) openModal('view'); else closeModalDirect();
+    }
+
+    async function searchMusic() {
+      const q = document.getElementById('search-input').value.trim();
+      if (!q) { showToast("🔍 검색어를 입력해 주세요!"); return; }
+      const resC = document.getElementById('search-results');
+      const empC = document.getElementById('search-empty');
+      const loadC = document.getElementById('search-loading');
+      resC.classList.add('hidden'); resC.innerHTML = ''; empC.classList.add('hidden');
+      document.getElementById('selected-song-preview').classList.add('hidden');
+      loadC.classList.remove('hidden'); tempSelectedSong = null;
+
+      try {
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&entity=song&limit=5`;
+        const res = await fetch(url);
+        const data = await res.json();
+        loadC.classList.add('hidden');
+        
+        if (!data.results || data.results.length === 0) { empC.classList.remove('hidden'); return; }
+        resC.classList.remove('hidden');
+        
+        data.results.forEach(song => {
+          const hiRes = song.artworkUrl100.replace('100x100bb.jpg', '300x300bb.jpg');
+          const el = document.createElement('div');
+          el.className = 'flex items-center gap-3 p-2 hover:bg-white/60 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-white/90';
+          el.innerHTML = `<img src="${song.artworkUrl100}" class="w-10 h-10 rounded object-cover shadow-sm"><div class="flex-1 min-w-0"><p class="font-jua text-xs text-ethereal-dark truncate">${song.trackName}</p><p class="font-pretendard text-[10px] text-gray-500 truncate">${song.artistName}</p></div>`;
+          el.onclick = () => {
+            tempSelectedSong = { trackName: song.trackName, artistName: song.artistName, artworkUrl100: hiRes };
+            document.getElementById('search-results').classList.add('hidden');
+            document.getElementById('selected-song-preview').classList.remove('hidden');
+            document.getElementById('preview-art').src = hiRes;
+            document.getElementById('preview-title').innerText = song.trackName;
+            document.getElementById('preview-artist').innerText = song.artistName;
+          };
+          resC.appendChild(el);
+        });
+      } catch (err) {
+        loadC.classList.add('hidden'); showToast("🌐 네트워크 에러!"); empC.classList.remove('hidden');
+      }
+    }
+
+    function handleImageUpload(e) {
+      const file = e.target.files[0]; if(!file) return;
+      if (!file.type.startsWith('image/')) { showToast("🖼️ 이미지만 업로드 가능해요!"); return; }
+      
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height; const max = 300;
+          if(w>h) { if(w>max){ h*=max/w; w=max; } } else { if(h>max){ w*=max/h; h=max; } }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img,0,0,w,h);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          tempDirectCoverBase64 = dataUrl;
+          document.getElementById('direct-preview-img').src = dataUrl;
+          document.getElementById('direct-preview-img').classList.remove('hidden');
+          document.getElementById('direct-preview-placeholder').classList.add('hidden');
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveEntry() {
+      const memo = document.getElementById('entry-memo-input').value.trim();
+      let title='', artist='', coverUrl='', isDirect=false;
+
+      if (entryMethod === 'search') {
+        if (!tempSelectedSong) { showToast("🔍 노래를 먼저 찾아주세요!"); return; }
+        title = tempSelectedSong.trackName; artist = tempSelectedSong.artistName;
+        coverUrl = tempSelectedSong.artworkUrl100;
+      } else {
+        title = document.getElementById('direct-title-input').value.trim();
+        artist = document.getElementById('direct-artist-input').value.trim();
+        if (!title || !artist) { showToast("✏️ 곡 제목과 가수를 적어주세요!"); return; }
+        // 빈 문자열인 경우 플레이스홀더 렌더링 로직으로 처리됨
+        coverUrl = tempDirectCoverBase64 || '';
+        isDirect = true;
+      }
+
+      songDiaryData[selectedDateString] = { title, artist, coverUrl, memo, isDirect };
+      saveDiaryData(); renderCalendar();
+      showToast(modalMode==='write'?"🌸 아름다운 기억이 저장되었어요!":"🌸 성공적으로 수정되었습니다!");
+      openModal('view');
+    }
+
+    function confirmDelete() {
+      const bd = document.getElementById('delete-confirm-backdrop');
+      bd.classList.remove('hidden');
+      setTimeout(() => { bd.classList.remove('opacity-0'); bd.querySelector('div').classList.remove('scale-95'); }, 50);
+    }
+    function closeDeleteConfirm() {
+      const bd = document.getElementById('delete-confirm-backdrop');
+      bd.classList.add('opacity-0'); bd.querySelector('div').classList.add('scale-95');
+      setTimeout(() => bd.classList.add('hidden'), 300);
+    }
+    function deleteEntry() {
+      delete songDiaryData[selectedDateString]; saveDiaryData(); renderCalendar();
+      showToast("🫧 기억을 깨끗이 지웠습니다.");
+      closeDeleteConfirm(); closeModalDirect();
+    }
+
+    function exportData() {
+      if (!Object.keys(songDiaryData).length) { showToast("⚠️ 비어있는 다이어리입니다."); return; }
+      const str = JSON.stringify(songDiaryData, null, 2);
+      const uri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(str);
+      const a = document.createElement('a');
+      a.href = uri; a.download = `${currentUser}-diary-backup.json`; a.click();
+    }
+    function importData(e) {
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const p = JSON.parse(ev.target.result);
+          songDiaryData = {...songDiaryData, ...p};
+          saveDiaryData(); renderCalendar();
+          showToast("✅ 마법처럼 복구되었습니다!");
+        } catch(err) { showToast("❌ 올바른 백업 파일이 아닙니다."); }
+      };
+      reader.readAsText(file); e.target.value='';
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-message').innerText = msg;
+      if (toastTimer) clearTimeout(toastTimer);
+      t.classList.remove('hidden');
+      setTimeout(() => { t.classList.remove('opacity-0','pointer-events-none'); t.classList.remove('translate-y-[-20px]'); }, 50);
+      toastTimer = setTimeout(() => { t.classList.add('opacity-0','pointer-events-none'); t.classList.add('translate-y-[-20px]'); }, 3000);
+    }
+  </script>
+</body>
+</html>
